@@ -245,7 +245,7 @@ After deployment, save these:
    - Railway: https://_____.railway.app
 
 3. **GitHub Repo:**
-   - https://github.com/YOUR_USERNAME/nicole26
+   - https://github.com/YOUR_USERNAME/rg
 
 4. **Admin Credentials (if needed):**
    - GitHub username/password

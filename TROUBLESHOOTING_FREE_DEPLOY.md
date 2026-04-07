@@ -36,7 +36,7 @@ Railway Variables Check:
 ```
 1. In Railway, go to your project
 2. Click "Railway Domain" (top of page)
-3. There's a domain like: nicole26-prod-xyz.railway.app
+3. There's a domain like: rg-prod-xyz.railway.app
 4. Go to Vercel → Settings → Environment Variables
 5. Update REACT_APP_SERVER_URL to:
    https://[YOUR-RAILWAY-DOMAIN].railway.app

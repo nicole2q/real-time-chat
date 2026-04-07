@@ -1,4 +1,4 @@
-# Chat App - Production Deployment Checklist
+# RG - Production Deployment Checklist
 
 ## Pre-Deployment (1-2 weeks before)
 

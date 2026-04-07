@@ -4,12 +4,12 @@
 
 ### GitHub Setup
 - [ ] Create GitHub account (if not already)
-- [ ] **IMPORTANT**: Go to your nicole26 folder and run:
+- [ ] **IMPORTANT**: Go to your project folder and run:
   ```bash
   git init
   git add .
-  git commit -m "Initial commit: Production-ready chat app"
-  git remote add origin https://github.com/YOUR-USERNAME/nicole26.git
+  git commit -m "Initial commit: Production-ready RG chat app"
+  git remote add origin https://github.com/YOUR-USERNAME/rg.git
   git branch -M main
   git push -u origin main
   ```
@@ -64,7 +64,7 @@
 □ Authorize Railway
 □ Click "New Project"
 □ Select "Deploy from GitHub repo"
-□ Choose your "nicole26" repo
+□ Choose your "rg" repo
 □ Click "Deploy"
 □ Go to "Variables" tab
 □ Add these environment variables:
@@ -80,7 +80,7 @@
 □ Save this URL as BACKEND_URL
 ```
 
-**Note:** Railway URL will be something like: `https://nicole26-prod-xyz.railway.app`
+**Note:** Railway URL will be something like: `https://rg-prod-xyz.railway.app`
 
 ---
 
@@ -93,12 +93,12 @@
 □ Sign up with GitHub
 □ Authorize Vercel
 □ Click "New Project"
-□ Search and select "nicole26" repo
+□ Search and select "rg" repo
 □ Click "Import"
 □ Leave settings as default
 □ Click "Deploy"
 □ Wait for deployment to complete (2-3 min)
-□ Copy your Vercel domain (like nicole26-abc.vercel.app)
+□ Copy your Vercel domain (like rg-abc.vercel.app)
 □ Save this URL as FRONTEND_URL
 ```
 

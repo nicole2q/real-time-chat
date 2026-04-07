@@ -1,7 +1,7 @@
-# Chat App Copilot Instructions
+# RG Copilot Instructions
 
 ## Project Overview
-This is a full-stack WhatsApp-like chatting application built with React (TypeScript) and Node.js/Express with Socket.io for real-time messaging.
+This is a full-stack real-time chat application built with React (TypeScript) and Node.js/Express with Socket.io for real-time messaging.
 
 ## Technology Stack
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Socket.io Client

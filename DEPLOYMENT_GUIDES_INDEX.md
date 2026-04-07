@@ -212,7 +212,7 @@ All questions answered in the detailed guides:
 
 ## 🎉 You're Ready!
 
-Your WhatsApp-like chat app is:
+Your RG real-time chat app is:
 - ✅ Coded and tested locally
 - ✅ Ready for public deployment
 - ✅ Using 100% free services

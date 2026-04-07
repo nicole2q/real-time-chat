@@ -21,7 +21,7 @@ A production-ready, full-stack real-time chat application built with React 18 an
 ## Project Structure
 
 ```
-nicole26/
+rg/
 ├── .github/
 │   └── copilot-instructions.md
 ├── server/                    # Node.js/Express backend
@@ -56,7 +56,7 @@ nicole26/
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
-cd nicole26
+cd rg
 
 # 2. Install all dependencies
 npm run install-all

@@ -64,7 +64,7 @@ npm run build
 # 8. Create systemd service for Node.js
 sudo tee /etc/systemd/system/chat-app.service > /dev/null <<EOF
 [Unit]
-Description=Chat App Server
+Description=RG Chat Server
 After=network.target
 
 [Service]
