@@ -1,0 +1,19 @@
+{
+  "name": "rg",
+  "version": "1.0.0",
+  "description": "RG - Real-time Chat Application",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "install-all": "npm install && npm install --workspace=server && npm install --workspace=client",
+    "dev": "concurrently \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client && npm run build -w server",
+    "start": "npm start -w server"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
+}
