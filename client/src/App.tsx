@@ -31,9 +31,7 @@ const App: React.FC = () => {
 
   // Check for existing token on mount
   useEffect(() => {
-    const     cd "c:\Users\SAMUEL KOKU EWORDAFE\Downloads\ALL\nicole26"
-    git remote set-url origin https://YOUR_TOKEN@github.com/nicole2q/real-time-chat.git
-    git push -u origin maintoken = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     if (token && !isAuthenticated) {
       authenticateWithToken(token).catch(() => {
         localStorage.removeItem('token');
