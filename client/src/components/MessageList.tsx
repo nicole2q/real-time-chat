@@ -2,22 +2,27 @@ import React, { useEffect, useRef } from 'react';
 import { useChat } from '../context/ChatContext';
 
 const MessageList: React.FC = () => {
-  const { messages, currentUser } = useChat();
+  const { messages, currentUser, currentConversation } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Filter messages for current conversation
+  const conversationMessages = messages.filter(
+    (msg) => msg.conversationId === currentConversation?.id
+  );
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [conversationMessages]);
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-3">
-      {messages.length === 0 ? (
+      {conversationMessages.length === 0 ? (
         <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
           <p>No messages yet. Start the conversation!</p>
         </div>
       ) : (
         <>
-          {messages.map((message) => {
+          {conversationMessages.map((message) => {
             const isOwn = message.senderId === currentUser?.id;
             return (
               <div
@@ -31,7 +36,13 @@ const MessageList: React.FC = () => {
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-none'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  {message.mediaUrl && message.mediaType === 'image' && (
+                    <img src={message.mediaUrl} alt="message" className="max-w-xs rounded-md mb-2" />
+                  )}
+                  {message.mediaUrl && message.mediaType === 'video' && (
+                    <video src={message.mediaUrl} className="max-w-xs rounded-md mb-2" controls />
+                  )}
+                  {message.content && <p className="text-sm">{message.content}</p>}
                   <p className={`text-xs mt-1 ${isOwn ? 'text-green-100' : 'text-gray-500 dark:text-gray-400'}`}>
                     {new Date(message.timestamp).toLocaleTimeString([], {
                       hour: '2-digit',

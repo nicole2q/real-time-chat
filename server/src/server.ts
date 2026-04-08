@@ -4,6 +4,8 @@ import { createServer } from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
+import bcryptjs from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -64,39 +66,80 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
 const users = new Map();
 const conversations = new Map();
 const messages = new Map();
+const contacts = new Map<string, Map<string, { id: string; name: string; email: string; phone?: string; addedAt: Date }>>();
+
+// Authentication utils
+const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-key-change-in-production';
+
+const generateToken = (userId: string): string => {
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+};
+
+const verifyToken = (token: string): { userId: string } | null => {
+  try {
+    return jwt.verify(token, JWT_SECRET) as { userId: string };
+  } catch {
+    return null;
+  }
+};
+
+const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access token required' });
+  }
+
+  const verified = verifyToken(token);
+  if (!verified) {
+    return res.status(403).json({ error: 'Invalid or expired token' });
+  }
+
+  (req as any).userId = verified.userId;
+  next();
+};
 
 // Socket.io event handlers
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // User registration
-  socket.on('user_register', (userData: any) => {
+  // User registration/authentication via JWT
+  socket.on('user_auth', (data: any) => {
     try {
-      // Validate user data
-      if (!userData || !userData.name || typeof userData.name !== 'string') {
-        socket.emit('error', { message: 'Invalid user data' });
+      const { token } = data;
+      
+      if (!token) {
+        socket.emit('error', { message: 'Token required' });
         return;
       }
 
-      const userId = uuidv4();
-      const user = {
-        id: userId,
-        socketId: socket.id,
-        name: userData.name.trim().slice(0, 100),
-        email: userData.email ? userData.email.trim().slice(0, 255) : '',
-        avatar: userData.avatar || '',
-        status: 'online' as const,
-        lastSeen: new Date(),
-      };
+      const verified = verifyToken(token);
+      if (!verified) {
+        socket.emit('error', { message: 'Invalid token' });
+        return;
+      }
 
-      users.set(userId, user);
+      const userId = verified.userId;
+      const user = users.get(userId);
+
+      if (!user) {
+        socket.emit('error', { message: 'User not found' });
+        return;
+      }
+
+      // Update user's socket and status
+      user.socketId = socket.id;
+      user.status = 'online';
+      user.lastSeen = new Date();
+
       socket.join(`user_${userId}`);
-      socket.emit('user_registered', { userId, user });
+      socket.emit('user_authenticated', { userId, user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar } });
       io.emit('user_status_changed', { userId, status: 'online' });
-      console.log(`User registered: ${userId}`);
+      console.log(`User authenticated: ${userId}`);
     } catch (error) {
-      console.error('Error registering user:', error);
-      socket.emit('error', { message: 'Registration failed' });
+      console.error('Error authenticating user:', error);
+      socket.emit('error', { message: 'Authentication failed' });
     }
   });
 
@@ -198,6 +241,128 @@ io.on('connection', (socket) => {
 });
 
 // REST API routes
+
+// Auth endpoints
+app.post('/api/auth/signup', async (req: Request, res: Response) => {
+  try {
+    const { email, password, name } = req.body;
+
+    // Validation
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'Email, password, and name are required' });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+
+    // Check if email already exists
+    for (const user of users.values()) {
+      if (user.email === email) {
+        return res.status(409).json({ error: 'Email already registered' });
+      }
+    }
+
+    // Hash password
+    const hashedPassword = await bcryptjs.hash(password, 10);
+    
+    // Create user
+    const userId = uuidv4();
+    const user = {
+      id: userId,
+      email,
+      name: name.trim().slice(0, 100),
+      password: hashedPassword,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`,
+      status: 'offline',
+      lastSeen: new Date(),
+      createdAt: new Date(),
+      socketId: null,
+    };
+
+    users.set(userId, user);
+    const token = generateToken(userId);
+
+    res.status(201).json({
+      id: userId,
+      email,
+      name: user.name,
+      avatar: user.avatar,
+      token,
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: 'Failed to signup' });
+  }
+});
+
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Find user
+    let user: any = null;
+    for (const u of users.values()) {
+      if (u.email === email) {
+        user = u;
+        break;
+      }
+    }
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Verify password
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = generateToken(user.id);
+    user.lastSeen = new Date();
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar,
+      token,
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+app.post('/api/auth/verify', authenticateToken, (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const user = users.get(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to verify token' });
+  }
+});
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'running', timestamp: new Date().toISOString() });
 });
@@ -211,14 +376,20 @@ app.get('/api/users', (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/conversations/:userId', (req: Request, res: Response) => {
+app.get('/api/conversations/:userId', authenticateToken, (req: Request, res: Response) => {
   try {
-    if (!req.params.userId || typeof req.params.userId !== 'string') {
-      return res.status(400).json({ error: 'Invalid userId' });
+    const userId = (req as any).userId;
+    const paramUserId = req.params.userId;
+    
+    // Verify user can only fetch their own conversations
+    if (userId !== paramUserId) {
+      return res.status(403).json({ error: 'Unauthorized' });
     }
+    
     const userConversations = Array.from(conversations.values()).filter(
-      (conv) => conv.participants.includes(req.params.userId)
+      (conv) => conv.participants.includes(userId)
     );
+    console.log('📋 Fetching conversations for user:', userId, 'found:', userConversations.length);
     res.json(userConversations);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch conversations' });
@@ -244,6 +415,112 @@ app.post('/api/conversations', (req: Request, res: Response) => {
     res.status(201).json(conversation);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create conversation' });
+  }
+});
+
+// Start conversation with contact
+app.post('/api/conversations/with-contact/:contactEmail', authenticateToken, (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { contactEmail } = req.params;
+    const { contactName } = req.body;
+
+    if (!contactEmail || !contactName) {
+      return res.status(400).json({ error: 'Contact email and name are required' });
+    }
+
+    // Create a unique conversation ID based on the two users
+    // Sort emails to ensure same ID regardless of who initiated
+    const sortedEmails = [userId, contactEmail].sort().join('_');
+    const conversationId = `dm_${sortedEmails}`;
+
+    // Check if conversation already exists
+    if (!conversations.has(conversationId)) {
+      const conversation = {
+        id: conversationId,
+        participants: [userId, contactEmail],
+        name: contactName,
+        createdAt: new Date(),
+      };
+      conversations.set(conversationId, conversation);
+      console.log('✅ Direct message conversation created:', { conversationId, participants: [userId, contactEmail] });
+    }
+
+    res.json({
+      id: conversationId,
+      participants: [userId, contactEmail],
+      name: contactName,
+      createdAt: new Date(),
+    });
+  } catch (error) {
+    console.error('❌ Error starting conversation:', error);
+    res.status(500).json({ error: 'Failed to start conversation' });
+  }
+});
+
+// Contact management endpoints
+app.post('/api/contacts', authenticateToken, (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { name, email, phone } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
+
+    if (!contacts.has(userId)) {
+      contacts.set(userId, new Map());
+    }
+
+    const contactId = uuidv4();
+    const userContacts = contacts.get(userId)!;
+    const contact = {
+      id: contactId,
+      name: String(name).slice(0, 100),
+      email: String(email).toLowerCase().slice(0, 255),
+      phone: phone ? String(phone).slice(0, 20) : undefined,
+      addedAt: new Date(),
+    };
+
+    userContacts.set(contactId, contact);
+    console.log('✅ Contact added:', { userId, contact });
+    res.status(201).json(contact);
+  } catch (error) {
+    console.error('❌ Error adding contact:', error);
+    res.status(500).json({ error: 'Failed to add contact' });
+  }
+});
+
+app.get('/api/contacts', authenticateToken, (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const userContacts = contacts.get(userId);
+    
+    if (!userContacts) {
+      return res.json([]);
+    }
+
+    const contactList = Array.from(userContacts.values());
+    res.json(contactList);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch contacts' });
+  }
+});
+
+app.delete('/api/contacts/:contactId', authenticateToken, (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).userId;
+    const { contactId } = req.params;
+
+    const userContacts = contacts.get(userId);
+    if (!userContacts || !userContacts.has(contactId)) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+
+    userContacts.delete(contactId);
+    res.json({ message: 'Contact deleted' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete contact' });
   }
 });
 

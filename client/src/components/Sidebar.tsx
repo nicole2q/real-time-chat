@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, LogOut, Menu } from 'lucide-react';
 import SearchBar from './SearchBar';
 import ConversationList from './ConversationList';
+import ContactsList from './ContactsList';
 import Settings from './Settings';
 
 interface SidebarProps {
@@ -12,8 +13,13 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onSelectConversation, selectedId, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<'conversations' | 'contacts'>('conversations');
+
+  const handleSearch = (query: string) => {
+    // Handle search logic here
+    console.log('Search:', query);
+  };
 
   return (
     <>
@@ -56,12 +62,40 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectConversation, selectedId, onL
           </div>
 
           {/* Search Bar */}
-          <SearchBar onSearch={setSearchQuery} placeholder="Search conversations..." />
+          <SearchBar onSearch={handleSearch} placeholder="Search conversations..." />
+
+          {/* Tabs */}
+          <div className="flex gap-2 mt-4 border-b border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setActiveTab('conversations')}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === 'conversations'
+                  ? 'bg-chat-green bg-opacity-20 text-chat-green border-b-2 border-chat-green'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              Chats
+            </button>
+            <button
+              onClick={() => setActiveTab('contacts')}
+              className={`flex-1 py-2 px-3 text-sm font-medium rounded-t-lg transition-colors ${
+                activeTab === 'contacts'
+                  ? 'bg-chat-green bg-opacity-20 text-chat-green border-b-2 border-chat-green'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              Contacts
+            </button>
+          </div>
         </div>
 
-        {/* Conversations List */}
+        {/* Conversations/Contacts List */}
         <div className="flex-1 overflow-y-auto p-4">
-          <ConversationList onSelectConversation={onSelectConversation} selectedId={selectedId} />
+          {activeTab === 'conversations' ? (
+            <ConversationList onSelectConversation={onSelectConversation} selectedId={selectedId} />
+          ) : (
+            <ContactsList />
+          )}
         </div>
       </div>
 

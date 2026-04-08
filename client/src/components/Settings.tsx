@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Moon, Palette, Bell, Lock } from 'lucide-react';
+import { X, Palette, Bell, Lock } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 interface SettingsProps {

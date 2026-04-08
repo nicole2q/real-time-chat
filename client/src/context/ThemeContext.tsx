@@ -32,6 +32,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newTheme = themes[savedTheme as keyof typeof themes] || themes.light;
     setThemeState(newTheme);
     document.documentElement.setAttribute('data-theme', newTheme.name);
+    // Apply dark class for Tailwind dark mode
+    if (newTheme.name === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, []);
 
   const setTheme = (themeName: 'light' | 'dark' | 'blue' | 'green') => {
@@ -39,6 +45,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setThemeState(newTheme);
     localStorage.setItem('theme', themeName);
     document.documentElement.setAttribute('data-theme', themeName);
+    // Apply dark class for Tailwind dark mode
+    if (themeName === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   return (

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Phone, Video, MoreVertical, Search, Plus } from 'lucide-react';
+import { Phone, Video, Plus, MoreVertical } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
-import SearchBar from './SearchBar';
 import AddContactModal from './AddContactModal';
 
 interface HeaderProps {
@@ -16,14 +15,18 @@ const Header: React.FC<HeaderProps> = ({ conversationName, recipientId }) => {
   const handleAudioCall = () => {
     if (recipientId) {
       startAudioCall(recipientId);
-      alert('Audio call initiated to ' + conversationName);
+      console.log('📞 Audio call initiated to:', conversationName);
+    } else {
+      alert('Please select a conversation to call');
     }
   };
 
   const handleVideoCall = () => {
     if (recipientId) {
       startVideoCall(recipientId);
-      alert('Video call initiated to ' + conversationName);
+      console.log('📹 Video call initiated to:', conversationName);
+    } else {
+      alert('Please select a conversation to call');
     }
   };
 
