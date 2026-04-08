@@ -29,8 +29,16 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install production dependencies
+# Copy root package files
+COPY package*.json ./
+
+# Copy server package files
 COPY server/package*.json ./server/
+
+# Install root dependencies
+RUN npm install --only=production
+
+# Install server-specific production dependencies
 RUN cd server && npm install --only=production
 
 # Copy built files
