@@ -12,10 +12,6 @@ const ContactsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadContacts();
-  }, []);
-
   const loadContacts = async () => {
     try {
       setIsLoading(true);
@@ -27,6 +23,10 @@ const ContactsList: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadContacts();
+  }, [getContacts]);
 
   const handleStartConversation = async (contactEmail: string, contactName: string) => {
     try {

@@ -259,15 +259,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const registerUser = (
-    userData: Omit<User, 'id' | 'status' | 'lastSeen'>
-  ) => {
-    if (socket) {
-      socket.emit('user_register', userData);
-      setCurrentUser({
-        ...userData,
-        id: socket.id || '',
-        status: 'online',
+  // const registerUser = (
+  //   userData: Omit<User, 'id' | 'status' | 'lastSeen'>
+  // ) => {
+  //   if (socket) {
+  //     socket.emit('user_register', userData);
+  //     setCurrentUser({
+  //       ...userData,
+  //       id: socket.id || '',
+  //       status: 'online',
         lastSeen: new Date(),
       });
     }
@@ -505,14 +505,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       joinConversation(currentConversation.id);
       setMessages([]); // Clear messages when switching conversations
     }
-  }, [currentConversation?.id, socket]);
+  }, [currentConversation?.id, socket, joinConversation]);
 
   // Fetch conversations when user authenticates
   useEffect(() => {
     if (isAuthenticated && currentUser) {
       fetchConversations();
     }
-  }, [isAuthenticated, currentUser]);
+  }, [isAuthenticated, currentUser, fetchConversations]);
 
   return (
     <ChatContext.Provider
