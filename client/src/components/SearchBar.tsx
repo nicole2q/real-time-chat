@@ -35,6 +35,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, placeholder = 'Search m
           <button
             onClick={handleClear}
             className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+            title="Clear search"
+            aria-label="Clear search"
           >
             <X className="w-4 h-4 text-gray-400" />
           </button>

@@ -27,7 +27,11 @@ const MessageInput: React.FC<MessageInputProps> = ({ conversationId }) => {
   return (
     <div className="bg-white dark:bg-chat-dark border-t border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-end gap-2">
-        <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+        <button
+          className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+          title="Emoji picker"
+          aria-label="Emoji picker"
+        >
           <Smile className="w-6 h-6" />
         </button>
         <textarea

@@ -62,7 +62,11 @@ const Header: React.FC<HeaderProps> = ({ conversationName, recipientId }) => {
           >
             <Plus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
-          <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+          <button
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            title="Audio call"
+            aria-label="Audio call"
+          >
             <MoreVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>

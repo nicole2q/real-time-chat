@@ -29,8 +29,6 @@ const io = new Server(httpServer, {
   transports: ['websocket', 'polling'],
 });
 
-const PORT = process.env.PORT || 5000;
-
 // Middleware
 app.use(cors({
   origin: allowedOrigins,

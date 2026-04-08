@@ -21,6 +21,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onSelectConversation, selectedId, onL
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="fixed top-4 left-4 z-40 lg:hidden bg-chat-green text-white p-2 rounded-full"
+        title="Toggle sidebar"
+        aria-label="Toggle sidebar"
       >
         <Menu className="w-6 h-6" />
       </button>

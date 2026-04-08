@@ -24,6 +24,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            title="Close settings"
+            aria-label="Close settings"
           >
             <X className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           </button>

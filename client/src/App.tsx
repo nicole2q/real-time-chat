@@ -81,13 +81,14 @@ const App: React.FC = () => {
     }
   }, [customName, handleLogin]);
 
+  const onSelectConversation = useCallback((id: string) => {
+    setSelectedConversation(id);
+  }, []);
+
   if (!isLoggedIn) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-gradient-to-br"
-        style={{
-          backgroundColor: theme.colors.primary,
-        }}
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800"
       >
         <div className="bg-white dark:bg-chat-dark rounded-lg shadow-2xl p-8 w-96 max-w-[90vw]">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
@@ -183,7 +184,7 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-900">
       {/* Sidebar */}
-      <Sidebar onSelectConversation={(id) => {}} onLogout={handleLogout} />
+      <Sidebar onSelectConversation={onSelectConversation} onLogout={handleLogout} />
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col max-w-full">
