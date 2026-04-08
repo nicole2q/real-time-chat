@@ -21,7 +21,7 @@ RUN npm run build
 
 # Build server
 WORKDIR /app/server
-RUN npm install --omit=dev
+RUN npm install
 RUN npm run build
 
 # Production stage
