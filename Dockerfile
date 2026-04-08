@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install root dependencies
-RUN npm ci
+RUN npm install
 
 # Copy server files
 COPY server/ ./server/
@@ -16,12 +16,12 @@ COPY client/ ./client/
 
 # Build client
 WORKDIR /app/client
-RUN npm ci
+RUN npm install
 RUN npm run build
 
 # Build server
 WORKDIR /app/server
-RUN npm ci --only=production
+RUN npm install --omit=dev
 RUN npm run build
 
 # Production stage
@@ -31,7 +31,7 @@ WORKDIR /app
 
 # Install production dependencies
 COPY server/package*.json ./server/
-RUN cd server && npm ci --only=production
+RUN cd server && npm install --only=production
 
 # Copy built files
 COPY --from=builder /app/server/dist ./server/dist
