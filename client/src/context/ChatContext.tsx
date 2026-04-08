@@ -268,10 +268,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   //       ...userData,
   //       id: socket.id || '',
   //       status: 'online',
-        lastSeen: new Date(),
-      });
-    }
-  };
+  //     lastSeen: new Date(),
+  //     });
+  //   }
+  // };
 
   const joinConversation = (conversationId: string) => {
     if (socket) {
