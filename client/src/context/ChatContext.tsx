@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 interface Message {
@@ -445,7 +445,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const fetchConversations = async (): Promise<void> => {
+  const fetchConversations = useCallback(async (): Promise<void> => {
     try {
       const token = localStorage.getItem('token');
       if (!token || !currentUser) {
@@ -466,7 +466,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error('Error fetching conversations:', error);
     }
-  };
+  }, [currentUser]);
 
   const sendMessageWithMedia = (
     conversationId: string,
@@ -505,14 +505,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       joinConversation(currentConversation.id);
       setMessages([]); // Clear messages when switching conversations
     }
-  }, [currentConversation?.id, socket, joinConversation]);
+  }, [currentConversation, socket, joinConversation]);
 
   // Fetch conversations when user authenticates
   useEffect(() => {
     if (isAuthenticated && currentUser) {
       fetchConversations();
     }
-  }, [isAuthenticated, currentUser, fetchConversations]);
+  }, [isAuthenticated, currentUser, fetchConversations]); // fetchConversations already wrapped in useCallback
 
   return (
     <ChatContext.Provider

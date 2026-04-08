@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Users, Mail, Trash2 } from 'lucide-react';
 import { useChat } from '../context/ChatContext';
 
@@ -12,7 +12,7 @@ const ContactsList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadContacts = async () => {
+  const loadContacts = useCallback(async () => {
     try {
       setIsLoading(true);
       await getContacts();
@@ -22,11 +22,11 @@ const ContactsList: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [getContacts]);
 
   useEffect(() => {
     loadContacts();
-  }, [getContacts]);
+  }, [loadContacts]);
 
   const handleStartConversation = async (contactEmail: string, contactName: string) => {
     try {
